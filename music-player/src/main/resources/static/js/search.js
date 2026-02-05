@@ -1,14 +1,11 @@
-// 1. Listen for the form submission
 document.getElementById('add').addEventListener('submit', function(event) {
-    event.preventDefault(); // Stop page refresh
+    event.preventDefault();
     handleSearch();
 });
 
 async function handleSearch() {
-    // Match the ID "userSearch" from your HTML
     const query = document.getElementById('userSearch').value;
 
-    // Create or find a results container
     let resultContainer = document.getElementById('video-results');
     if (!resultContainer) {
         resultContainer = document.createElement('div');
@@ -20,7 +17,7 @@ async function handleSearch() {
         const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`);
         const videos = await response.json();
 
-        resultContainer.innerHTML = ''; // Clear old results
+        resultContainer.innerHTML = '';
 
         videos.forEach(video => {
             const videoElement = `
@@ -36,57 +33,73 @@ async function handleSearch() {
         console.error("Error fetching videos:", e);
         resultContainer.innerHTML = "Something went wrong.";
     }
+    document.addEventListener('DOMContentLoaded', () => {
+        loadFavorites();
+    });
 }
 
-// 2. Move this OUTSIDE so the buttons can find it
-function playVideo(id) {
-    const playerContainer = document.getElementById('player-container');
-    playerContainer.innerHTML = `
-        <div class="video-wrapper">
-            <iframe 
-                width="560" 
-                height="315" 
-                src="https://www.youtube.com/embed/${id}?autoplay=1" 
-                title="YouTube video player" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                allowfullscreen>
-            </iframe>
-        </div>
-    `;
-}
-
-// move these when future me wants to add a playlist system
-function saveVideo(videoId) {
-    const favorites = JSON.parse(localStorage.getItem('myVideos')) || [];
-
-    if (!favorites.includes(videoId)) {
-        favorites.push(videoId);
-        localStorage.setItem('myVideos', JSON.stringify(favorites));
-        console.log("ID Saved:", videoId);
-    }
-}
+let currentPlaylist = [];
+let isShuffle = false;
 
 async function loadFavorites() {
     const favoriteIds = JSON.parse(localStorage.getItem('myVideos')) || [];
-    console.log("IDs found in storage:", favoriteIds); // DEBUG 1
     if (favoriteIds.length === 0) return;
+
+    currentPlaylist = [...favoriteIds];
     const idString = favoriteIds.join(',');
-    const url = `/api/video-details?ids=${encodeURIComponent(idString)}`;
-    console.log("Fetching from:", url); // DEBUG 2
 
     try {
-        const response = await fetch(`/api/video-details?ids=${idString}`);
+        const response = await fetch(`/api/video-details?ids=${encodeURIComponent(idString)}`);
         const freshVideos = await response.json();
-        console.log("Data received from Java:", freshVideos); // DEBUG 3
+
         const favoriteContainer = document.getElementById('favorites-list');
         favoriteContainer.innerHTML = freshVideos.map(video => `
-            <li>
+            <div class="video-card">
                 <strong>${video.title}</strong>
-                <button onclick="playVideo('${video.videoId}')">Play Now</button>
-            </li>
+                <button onclick="playFromPlaylist('${video.videoId}')">Play</button>
+                <button onclick="removeVideo('${video.videoId}')">Remove</button>
+            </div>
         `).join('');
     } catch (e) {
-        console.error("Couldn't refresh titles:", e);
+        console.error("Library Load Error:", e);
     }
+}
+
+function playFromPlaylist(videoId) {
+    const playerContainer = document.getElementById('player-container');
+    playerContainer.innerHTML = `<div id="yt-player"></div>`;
+
+    new YT.Player('yt-player', {
+        height: '315',
+        width: '560',
+        videoId: videoId,
+        events: {
+            'onReady': (event) => event.target.playVideo(),
+            'onStateChange': onPlayerStateChange
+        }
+    });
+}
+function onPlayerStateChange(event) {
+    if (event.data === 0) {
+        playNext();
+    }
+}
+
+function playNext() {
+    if (currentPlaylist.length === 0) return;
+
+    let nextId;
+    if (isShuffle) {
+        nextId = currentPlaylist[Math.floor(Math.random() * currentPlaylist.length)];
+    } else {
+        const currentVideoId = document.querySelector('iframe').src.split('/embed/')[1].split('?')[0];
+        const currentIndex = currentPlaylist.indexOf(currentVideoId);
+        nextId = currentPlaylist[(currentIndex + 1) % currentPlaylist.length];
+    }
+    playFromPlaylist(nextId);
+}
+
+function toggleShuffle() {
+    isShuffle = !isShuffle;
+    alert(`Shuffle is now ${isShuffle ? 'ON' : 'OFF'}`);
 }
