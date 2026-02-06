@@ -2,37 +2,57 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>music player</title>
     <script src="https://www.youtube.com/iframe_api"></script>
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
-    <div id="search">
-        <form id="add">
-            <input id="userSearch" name="search" placeholder="search" autofocus autocomplete="off" />
-            <button type="submit"> enter </button>
-        </form>
-    </div>
-    <div class="playlist-creator">
-        <input type="text" id="new-playlist-name" placeholder="Enter playlist name...">
-        <button onclick="createPlaylist()">Create Playlist</button>
-    </div>
-    <div id="video-results"></div>
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="logo">notSpotify</div>
 
-    <div id="playlist-navigation" style="margin: 20px 0; padding: 10px; border: 1px solid #ccc;">
-        <h3>Your Playlists</h3>
-        <div id="playlist-buttons-container">
+        <div class="section">
+            <h3>Create</h3>
+            <div class="playlist-creator">
+                <input type="text" id="new-playlist-name" placeholder="New playlist...">
+                <button onclick="createPlaylist()">+</button>
+            </div>
         </div>
-    </div>
-    <h2 id="current-playlist-title">My Library</h2>
-    <div id="favorites-list"></div>
 
-    <div id="controls">
+        <div class="section">
+            <h3>Your Library</h3>
+            <div id="playlist-buttons-container">
+            </div>
+        </div>
+    </aside>
 
-        <button onclick="toggleShuffle()">🔀 Toggle Shuffle</button>
-        <button onclick="playNext()">⏭️ Skip</button>
-    </div>
+    <main class="main-content">
+        <header class="top-bar">
+            <form id="add">
+                <input id="userSearch" name="search" placeholder="Search for songs or artists..." autocomplete="off" />
+                <button type="submit">Search</button>
+            </form>
+        </header>
 
-    <div id="player-container" style="margin-bottom: 20px;"></div>
+        <section id="search-section">
+            <div id="video-results"></div>
+        </section>
+
+        <section id="playlist-section">
+            <h2 id="current-playlist-title">My Library</h2>
+            <div id="favorites-list"></div>
+        </section>
+
+        <div id="player-container"></div>
+    </main>
+
+    <footer class="player-bar">
+        <div id="controls">
+            <button onclick="toggleShuffle()" title="Shuffle">🔀</button>
+            <button onclick="playNext()" title="Skip">⏭️</button>
+        </div>
+    </footer>
+</div>
     <script type="module" src="js/index.js"></script>
 </body>
 </html>
