@@ -11,9 +11,8 @@
 - Build tools
     - ![Maven](https://img.shields.io/badge/Maven-C71A36?logo=apachemaven&logoColor=white)
     
-- Developement and DevOps
+- Developement
     - ![JetBrains IDE](https://img.shields.io/badge/JetBrains-000000?logo=jetbrains&logoColor=white)
-    - ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 - API
   - ![YouTube Data API](https://img.shields.io/badge/YouTube%20Data%20API-FF0000?logo=youtube&logoColor=white)
 
